@@ -11,7 +11,7 @@ class EventTest {
     void javaBeanTest() {
         // given
         String name = "Event";
-        String description = "Srping";
+        String description = "Spring";
 
         // when
         Event event = new Event();
