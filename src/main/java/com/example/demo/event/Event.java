@@ -1,13 +1,17 @@
 package com.example.demo.event;
 
+import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import lombok.*;
-
-import java.time.LocalDateTime;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.util.StringUtils;
 
 @Getter
 @Setter
@@ -37,19 +41,19 @@ public class Event {
 
     @Builder
     public Event(Long id,
-                 String name,
-                 String description,
-                 LocalDateTime openEnrollmentDateTime,
-                 LocalDateTime closeEnrollmentDateTime,
-                 LocalDateTime beginEventDateTime,
-                 LocalDateTime endEventDateTime,
-                 String location,
-                 int basePrice,
-                 int maxPrice,
-                 int limitOfEnrollment,
-                 boolean offline,
-                 boolean free,
-                 EventStatus eventStatus) {
+        String name,
+        String description,
+        LocalDateTime openEnrollmentDateTime,
+        LocalDateTime closeEnrollmentDateTime,
+        LocalDateTime beginEventDateTime,
+        LocalDateTime endEventDateTime,
+        String location,
+        int basePrice,
+        int maxPrice,
+        int limitOfEnrollment,
+        boolean offline,
+        boolean free,
+        EventStatus eventStatus) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -71,6 +75,6 @@ public class Event {
         this.free = basePrice == 0 && maxPrice == 0;
 
         // Update location
-        this.offline = location != null && !location.isEmpty();
+        this.offline = location != null && !StringUtils.trimWhitespace(location).isEmpty();
     }
 }
