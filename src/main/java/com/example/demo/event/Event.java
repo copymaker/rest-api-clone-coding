@@ -1,5 +1,10 @@
 package com.example.demo.event;
 
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -8,8 +13,11 @@ import java.time.LocalDateTime;
 @Setter
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
+@Entity
 public class Event {
 
+    @Id
+    @GeneratedValue
     private Long id;
     private String name;
     private String description;
@@ -23,6 +31,8 @@ public class Event {
     private int limitOfEnrollment;
     private boolean offline;
     private boolean free;
+
+    @Enumerated(value = EnumType.STRING)
     private EventStatus eventStatus;
 
     @Builder
