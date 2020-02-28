@@ -65,4 +65,12 @@ public class Event {
         this.free = free;
         this.eventStatus = eventStatus;
     }
+
+    public void update() {
+        // Update free
+        this.free = basePrice == 0 && maxPrice == 0;
+
+        // Update location
+        this.offline = location != null && !location.isEmpty();
+    }
 }
