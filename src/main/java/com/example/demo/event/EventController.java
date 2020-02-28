@@ -2,6 +2,7 @@ package com.example.demo.event;
 
 import java.net.URI;
 import javax.validation.Valid;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +47,7 @@ public class EventController {
         EventEntityModel eventEntityModel = new EventEntityModel(event);
         eventEntityModel.add(WebMvcLinkBuilder.linkTo(EventController.class).withRel("query-events"));
         eventEntityModel.add(selfLinkBuilder.withRel("update-event"));
+        eventEntityModel.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
 
         return ResponseEntity.created(createdUri).body(eventEntityModel);
     }
