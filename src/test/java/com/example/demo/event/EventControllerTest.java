@@ -3,11 +3,11 @@ package com.example.demo.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,7 +20,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
+@SpringBootTest
+@AutoConfigureMockMvc
 class EventControllerTest {
 
     @Autowired
@@ -29,12 +30,10 @@ class EventControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    @MockBean
-    EventRepository eventRepository;
-
     @Test
     void createEventTest() throws Exception {
         Event event = Event.builder()
+            .id(100L)
             .name("Spring")
             .description("REST API Development with Spring")
             .openEnrollmentDateTime(LocalDateTime.of(2020, 2, 23, 14, 21))
@@ -45,10 +44,10 @@ class EventControllerTest {
             .maxPrice(200)
             .limitOfEnrollment(100)
             .location("강남역 D2 스타텁 팩토리")
+            .free(true)
+            .offline(false)
+            .eventStatus(EventStatus.PUBLISHED)
             .build();
-        event.setId(10L);
-
-        Mockito.when(eventRepository.save(event)).thenReturn(event);
 
         mockMvc
             .perform(
@@ -59,8 +58,11 @@ class EventControllerTest {
                     .content(objectMapper.writeValueAsString(event)))
             .andDo(print())
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("id").exists())
             .andExpect(header().exists(HttpHeaders.LOCATION))
-            .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE));
+            .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+            .andExpect(jsonPath("id").exists())
+            .andExpect(jsonPath("id").value(Matchers.not(100L)))
+            .andExpect(jsonPath("free").value(Matchers.not(true)))
+            .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()));
     }
 }

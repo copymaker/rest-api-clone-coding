@@ -14,13 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class EventController {
 
     private final EventRepository eventRepository;
+    private final EventMapper eventMapper;
 
-    public EventController(EventRepository eventRepository) {
+    public EventController(EventRepository eventRepository, EventMapper eventMapper) {
         this.eventRepository = eventRepository;
+        this.eventMapper = eventMapper;
     }
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody Event event) {
+    public ResponseEntity<Event> createEvent(@RequestBody EventDto eventDto) {
+        Event event = eventMapper.toEntity(eventDto);
         Event newEvent = eventRepository.save(event);
         URI createdUri = WebMvcLinkBuilder.linkTo(EventController.class).slash(newEvent).toUri();
         return ResponseEntity.created(createdUri).body(event);
