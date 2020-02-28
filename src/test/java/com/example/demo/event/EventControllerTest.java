@@ -9,25 +9,34 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 @SpringBootTest
-@AutoConfigureMockMvc
 class EventControllerTest {
 
-    @Autowired
     MockMvc mockMvc;
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setUp(WebApplicationContext wac) {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(wac)
+            .addFilter(new CharacterEncodingFilter(StandardCharsets.UTF_8.name(), true))
+            .build();
+    }
 
     @Test
     @DisplayName("정상적으로 이벤트를 생성하는 테스트")
@@ -55,11 +64,15 @@ class EventControllerTest {
             .andDo(print())
             .andExpect(status().isCreated())
             .andExpect(header().exists(HttpHeaders.LOCATION))
-            .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+            .andExpect(header().string(HttpHeaders.CONTENT_TYPE,
+                Matchers.containsString(MediaTypes.HAL_JSON_VALUE)))
             .andExpect(jsonPath("id").exists())
             .andExpect(jsonPath("free").value(false))
             .andExpect(jsonPath("offline").value(true))
-            .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()));
+            .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+            .andExpect(jsonPath("_links.self").exists())
+            .andExpect(jsonPath("_links.query-events").exists())
+            .andExpect(jsonPath("_links.update-event").exists());
     }
 
     @Test
