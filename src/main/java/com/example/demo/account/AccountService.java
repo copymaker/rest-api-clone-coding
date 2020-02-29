@@ -9,15 +9,18 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AccountService(AccountRepository accountRepository) {
+    public AccountService(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -32,5 +35,10 @@ public class AccountService implements UserDetailsService {
         return roles.stream()
             .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
             .collect(Collectors.toSet());
+    }
+
+    public Account saveAccount(Account account) {
+        account.setPassword(passwordEncoder.encode(account.getPassword()));
+        return accountRepository.save(account);
     }
 }

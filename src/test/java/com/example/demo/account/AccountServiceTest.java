@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
@@ -21,7 +22,7 @@ class AccountServiceTest {
     AccountService accountService;
 
     @Autowired
-    AccountRepository accountRepository;
+    PasswordEncoder passwordEncoder;
 
     @Test
     void findByUsername() {
@@ -34,25 +35,25 @@ class AccountServiceTest {
             .password(password)
             .roles(new HashSet<>(Arrays.asList(AccountRole.ADMIN, AccountRole.USER)))
             .build();
-        accountRepository.save(account);
+
+        accountService.saveAccount(account);
 
         // when
         UserDetailsService userDetailsService = accountService;
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         // then
-        assertThat(userDetails.getPassword()).isEqualTo(password);
+        assertThat(passwordEncoder.matches(password, userDetails.getPassword())).isTrue();
     }
 
     @Test
     void findByUsernameFail() {
         // given
-        String username = "random@email.col";
+        String username = "random@email.com";
 
         // when & then
-        UsernameNotFoundException thrown = assertThrows(UsernameNotFoundException.class, () -> {
-            accountService.loadUserByUsername(username);
-        });
+        UsernameNotFoundException thrown = assertThrows(UsernameNotFoundException.class,
+            () -> accountService.loadUserByUsername(username));
 
         assertThat(thrown.getMessage()).contains(username);
     }
