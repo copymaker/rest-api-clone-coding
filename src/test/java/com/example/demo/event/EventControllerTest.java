@@ -209,12 +209,38 @@ class EventControllerTest {
     }
 
     @Test
+    @DisplayName("기존의 이벤트를 하나 조회하기")
+    void getEventTest() throws Exception {
+        // given
+        Event event = generateEvent(100);
+
+        // when & then
+        mockMvc
+            .perform(get("/api/events/{id}", event.getId()))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("id").value(event.getId()))
+            .andExpect(jsonPath("name").value(event.getName()))
+            .andExpect(jsonPath("_links.self").exists())
+            .andExpect(jsonPath("_links.profile").exists())
+            .andDo(document("get-an-event"));
+    }
+
+    @Test
+    @DisplayName("없는 이벤트를 조회했을 때 404 응답받기")
+    void getEvent404() throws Exception {
+        mockMvc.perform(get("/api/events/-1"))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
     @DisplayName("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
     void queryEvents() throws Exception {
         // given
         IntStream.range(0, 30).forEach(this::generateEvent);
 
-        // when
+        // when & then
         mockMvc
             .perform(
                 get("/api/events")
@@ -230,12 +256,23 @@ class EventControllerTest {
             .andDo(document("query-events"));
     }
 
-    private void generateEvent(int index) {
+    private Event generateEvent(int index) {
         Event event = Event.builder()
             .name("event" + index)
             .description("test event")
+            .openEnrollmentDateTime(LocalDateTime.of(2018, 11, 23, 14, 21))
+            .closeEnrollmentDateTime(LocalDateTime.of(2018, 11, 24, 14, 21))
+            .beginEventDateTime(LocalDateTime.of(2018, 11, 25, 14, 21))
+            .endEventDateTime(LocalDateTime.of(2018, 11, 26, 14, 21))
+            .basePrice(100)
+            .maxPrice(200)
+            .limitOfEnrollment(100)
+            .location("강남역 D2 스타텁 팩토리")
+            .free(false)
+            .offline(true)
+            .eventStatus(EventStatus.DRAFT)
             .build();
 
-        eventRepository.save(event);
+        return eventRepository.save(event);
     }
 }
