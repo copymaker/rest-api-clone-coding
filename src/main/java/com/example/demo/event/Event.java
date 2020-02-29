@@ -6,6 +6,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,8 +16,10 @@ import org.springframework.util.StringUtils;
 
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id")
+@Builder
 @Entity
 public class Event {
 
@@ -36,39 +39,9 @@ public class Event {
     private boolean offline;
     private boolean free;
 
+    @Builder.Default
     @Enumerated(value = EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
-
-    @Builder
-    public Event(Long id,
-        String name,
-        String description,
-        LocalDateTime openEnrollmentDateTime,
-        LocalDateTime closeEnrollmentDateTime,
-        LocalDateTime beginEventDateTime,
-        LocalDateTime endEventDateTime,
-        String location,
-        int basePrice,
-        int maxPrice,
-        int limitOfEnrollment,
-        boolean offline,
-        boolean free,
-        EventStatus eventStatus) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.openEnrollmentDateTime = openEnrollmentDateTime;
-        this.closeEnrollmentDateTime = closeEnrollmentDateTime;
-        this.beginEventDateTime = beginEventDateTime;
-        this.endEventDateTime = endEventDateTime;
-        this.location = location;
-        this.basePrice = basePrice;
-        this.maxPrice = maxPrice;
-        this.limitOfEnrollment = limitOfEnrollment;
-        this.offline = offline;
-        this.free = free;
-        this.eventStatus = eventStatus;
-    }
 
     public void update() {
         // Update free
