@@ -1,5 +1,6 @@
 package com.example.demo.event;
 
+import com.example.demo.common.ErrorEntityModel;
 import java.net.URI;
 import javax.validation.Valid;
 import org.springframework.hateoas.Link;
@@ -29,12 +30,12 @@ public class EventController {
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return ResponseEntity.badRequest().body(new ErrorEntityModel(errors));
         }
 
         eventValidator.validate(eventDto, errors);
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return ResponseEntity.badRequest().body(new ErrorEntityModel(errors));
         }
 
         Event event = eventMapper.toEntity(eventDto);
