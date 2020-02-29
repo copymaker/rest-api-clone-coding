@@ -1,4 +1,4 @@
-package com.example.demo.config;
+package com.example.demo.common;
 
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 
