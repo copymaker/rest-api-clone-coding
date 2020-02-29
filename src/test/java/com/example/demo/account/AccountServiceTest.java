@@ -1,10 +1,12 @@
 package com.example.demo.account;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,15 +16,24 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
+@Disabled
 @SpringBootTest
 @ActiveProfiles("test")
 class AccountServiceTest {
 
     @Autowired
-    AccountService accountService;
+    private AccountService accountService;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @BeforeEach
+    void setUp() {
+        accountRepository.deleteAll();
+    }
 
     @Test
     void findByUsername() {

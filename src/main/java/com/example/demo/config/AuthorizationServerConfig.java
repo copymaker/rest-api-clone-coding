@@ -1,6 +1,7 @@
 package com.example.demo.config;
 
 import com.example.demo.account.AccountService;
+import com.example.demo.common.AppProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,15 +18,18 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 @EnableAuthorizationServer
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
+    private final AppProperties appProperties;
     private final AuthenticationManager authenticationManager;
     private final AccountService accountService;
     private final PasswordEncoder passwordEncoder;
 
     public AuthorizationServerConfig(
+        AppProperties appProperties,
         AuthenticationManager authenticationManager,
         AccountService accountService,
         PasswordEncoder passwordEncoder) {
 
+        this.appProperties = appProperties;
         this.authenticationManager = authenticationManager;
         this.accountService = accountService;
         this.passwordEncoder = passwordEncoder;
@@ -44,10 +48,10 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.inMemory()
-            .withClient("myApp")
+            .withClient(appProperties.getClientId())
             .authorizedGrantTypes("password", "refresh_token")
             .scopes("read", "write")
-            .secret(passwordEncoder.encode("pass"))
+            .secret(passwordEncoder.encode(appProperties.getClientSecret()))
             .accessTokenValiditySeconds(600)
             .refreshTokenValiditySeconds(3600);
     }

@@ -3,6 +3,7 @@ package com.example.demo.config;
 import com.example.demo.account.Account;
 import com.example.demo.account.AccountRole;
 import com.example.demo.account.AccountService;
+import com.example.demo.common.AppProperties;
 import java.util.Arrays;
 import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,13 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-public class ApplicationConfig {
+public class AppConfig {
+
+    private final AppProperties appProperties;
+
+    public AppConfig(AppProperties appProperties) {
+        this.appProperties = appProperties;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -30,13 +37,21 @@ public class ApplicationConfig {
 
             @Override
             public void run(ApplicationArguments args) throws Exception {
-                Account account = Account.builder()
-                    .email("keesun@email.com")
-                    .password("1234")
+                Account admin = Account.builder()
+                    .email(appProperties.getAdminUsername())
+                    .password(appProperties.getAdminPassword())
                     .roles(new HashSet<>(Arrays.asList(AccountRole.ADMIN, AccountRole.USER)))
                     .build();
 
-                accountService.saveAccount(account);
+                accountService.saveAccount(admin);
+
+                Account user = Account.builder()
+                    .email(appProperties.getUserUsername())
+                    .password(appProperties.getUserPassword())
+                    .roles(new HashSet<>(Arrays.asList(AccountRole.USER)))
+                    .build();
+
+                accountService.saveAccount(user);
             }
         };
     }
